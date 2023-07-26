@@ -5,8 +5,6 @@ import javax.imageio.*;
 import javax.imageio.metadata.*;
 
 public class TS_FileGifCoreUtils {
-    
-    
 
     public static ImageWriter getImageWriter_forGif() throws IIOException {
         var iter = ImageIO.getImageWritersBySuffix("gif");

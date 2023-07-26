@@ -1,11 +1,11 @@
 com\tugalsan\trm\recorder\gif\core\TS_FileGifCoreGUI$1.class
 com\tugalsan\trm\recorder\gif\core\TS_FileGifCoreConfig.class
-com\tugalsan\trm\recorder\gif\core\TS_FileGifCoreGUI$3.class
 com\tugalsan\trm\recorder\gif\core\TS_FileGifCoreGUI.class
 com\tugalsan\trm\recorder\gif\core\TS_FileGifCoreConfig_WriterThread.class
 com\tugalsan\trm\recorder\gif\core\TS_FileGifCoreGUIStatic.class
 com\tugalsan\trm\recorder\gif\core\TS_FileGifCoreUtils.class
 com\tugalsan\trm\recorder\gif\core\TS_FileGifCoreGUI$2.class
 com\tugalsan\trm\recorder\gif\Main.class
-com\tugalsan\trm\recorder\gif\core\TS_FileGifCoreGUIConfig.class
+com\tugalsan\trm\recorder\gif\core\TS_FileGifCoreGUIMouse.class
+com\tugalsan\trm\recorder\gif\core\TS_FileGifCoreGUIStatic$1.class
 com\tugalsan\trm\recorder\gif\core\TS_FileGifCoreConfig_CaptureThread.class

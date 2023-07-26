@@ -7,13 +7,11 @@ public class TS_FileGifCoreConfig_CaptureThread implements Runnable {
 
     public static final TS_FileGifCoreConfig_CaptureThread INSTANCE = new TS_FileGifCoreConfig_CaptureThread();
     private static final Thread THREAD = new Thread(INSTANCE);
-    private TS_FileGifCoreGUIConfig cfgGui;
     private TS_FileGifCoreConfig config;
     private Rectangle bounds;
     private Robot rt;
 
-    private void createWriter(TS_FileGifCoreGUIConfig cfgGui, TS_FileGifCoreConfig config, Rectangle bounds) throws IOException, AWTException {
-        this.cfgGui = cfgGui;
+    private void createWriter(TS_FileGifCoreConfig config, Rectangle bounds) throws IOException, AWTException {
         this.config = config;
         this.bounds = bounds;
         rt = new Robot();
@@ -28,8 +26,8 @@ public class TS_FileGifCoreConfig_CaptureThread implements Runnable {
         TS_FileGifCoreConfig_WriterThread.startWriter();
     }
 
-    public void runWriter(TS_FileGifCoreGUIConfig cfgGui, TS_FileGifCoreConfig config, Rectangle bounds) throws IOException, AWTException {
-        createWriter(cfgGui, config, bounds);
+    public void runWriter(TS_FileGifCoreConfig config, Rectangle bounds) throws IOException, AWTException {
+        createWriter(config, bounds);
         startCapture();
     }
 
@@ -52,8 +50,6 @@ public class TS_FileGifCoreConfig_CaptureThread implements Runnable {
                 if (Thread.interrupted()) {
                     break;
                 }
-                cfgGui.info.setText("WARNING: Can't keep up! Increase the frame delay...");
-                cfgGui.info.setForeground(Color.RED);
                 continue;
             }
             try {
