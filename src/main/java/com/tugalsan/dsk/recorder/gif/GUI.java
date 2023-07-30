@@ -3,6 +3,7 @@ package com.tugalsan.dsk.recorder.gif;
 import com.tugalsan.api.file.gif.server.*;
 import com.tugalsan.api.desktop.server.*;
 import com.tugalsan.api.input.server.TS_InputScreenUtils;
+import com.tugalsan.api.thread.server.async.TS_ThreadAsync;
 import com.tugalsan.api.unsafe.client.TGS_UnSafe;
 import java.awt.Robot;
 import java.awt.image.RenderedImage;
@@ -56,7 +57,7 @@ public class GUI extends JFrame {
         ConcurrentLinkedQueue<RenderedImage> images = new ConcurrentLinkedQueue();
         var writerFinished = new AtomicBoolean(true);
         var captureFinished = new AtomicBoolean(true);
-        new Thread(() -> {//CAPTURE THREAD
+        TS_ThreadAsync.now(() -> {//CAPTURE THREAD
             var r = TS_InputScreenUtils.robot();
             while (!stopTriggered.get()) {
                 var begin = System.currentTimeMillis();
@@ -66,8 +67,8 @@ public class GUI extends JFrame {
                 Thread.yield();
             }
             captureFinished.set(false);
-        }).start();
-        new Thread(() -> {//WRITER THREAD
+        });
+        TS_ThreadAsync.now(() -> {//WRITE THREAD
             while (!stopTriggered.get()) {
                 while (!images.isEmpty()) {
                     gif.accept(images.poll());
@@ -76,14 +77,14 @@ public class GUI extends JFrame {
             }
             gif.close();
             writerFinished.set(false);
-        }).start();
-        new Thread(() -> {//EXIT THREAD
+        });
+        TS_ThreadAsync.now(() -> {//EXIT THREAD
             while (captureFinished.get() && writerFinished.get()) {
                 Thread.yield();
             }
             TS_DesktopPathUtils.run(file);
             System.exit(0);
-        }).start();
+        });
     }
     private AtomicBoolean startTriggered = new AtomicBoolean(false);
     private AtomicBoolean stopTriggered = new AtomicBoolean(false);
