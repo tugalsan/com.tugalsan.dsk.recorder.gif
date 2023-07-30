@@ -45,6 +45,11 @@
             <artifactId>com.tugalsan.api.file.gif</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>com.tugalsan.api.thread</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>${artifactId}</finalName>
