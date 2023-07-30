@@ -1,0 +1,4 @@
+--patch-module
+com.tugalsan.dsk.recorder.gif=_
+--add-reads
+com.tugalsan.dsk.recorder.gif=ALL-UNNAMED
