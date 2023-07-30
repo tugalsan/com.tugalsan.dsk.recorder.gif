@@ -6,4 +6,5 @@ module com.tugalsan.dsk.recorder.gif {
     requires com.tugalsan.api.desktop;
     requires com.tugalsan.api.file.gif;
     requires com.tugalsan.api.thread;
+    requires com.tugalsan.api.input;
 }

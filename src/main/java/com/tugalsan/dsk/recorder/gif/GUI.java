@@ -2,6 +2,7 @@ package com.tugalsan.dsk.recorder.gif;
 
 import com.tugalsan.api.file.gif.server.*;
 import com.tugalsan.api.desktop.server.*;
+import com.tugalsan.api.input.server.TS_InputScreenUtils;
 import com.tugalsan.api.unsafe.client.TGS_UnSafe;
 import java.awt.Robot;
 import java.awt.image.RenderedImage;
@@ -51,16 +52,15 @@ public class GUI extends JFrame {
         }
         //FETCH WRITER
         var gif = TS_FileGifWriter.of(file, 150, true);
-        //FETCH ROBOT
-        var rt = TGS_UnSafe.call(() -> new Robot());
         //RUN
         ConcurrentLinkedQueue<RenderedImage> images = new ConcurrentLinkedQueue();
         var writerFinished = new AtomicBoolean(true);
         var captureFinished = new AtomicBoolean(true);
         new Thread(() -> {//CAPTURE THREAD
+            var r = TS_InputScreenUtils.robot();
             while (!stopTriggered.get()) {
                 var begin = System.currentTimeMillis();
-                gif.accept(rt.createScreenCapture(rect));
+                gif.accept(TS_InputScreenUtils.shotPictures(r, rect));
                 var end = System.currentTimeMillis();
                 TGS_UnSafe.run(() -> Thread.sleep(gif.timeBetweenFramesMS - (end - begin)));
                 Thread.yield();
