@@ -23,12 +23,13 @@ public class GUI extends JFrame {
         TS_DesktopWindowAndFrameUtils.initUnDecorated(this);
         TS_DesktopWindowAndFrameUtils.setBackgroundTransparentBlack(this);
         TS_DesktopWindowAndFrameUtils.setBorderRed(this);
-        TS_DesktopWindowAndFrameUtils.setTitleSizeCenterWithMenuBar(this, "Tuğalsan's Gif Recorder", TS_DesktopJMenuButtonBar.of(TS_DesktopJMenuButton.of("Exit", mx -> {
-            if (!startTriggered.get()) {
-                System.exit(0);
-            }
-            stopTriggered.set(true);
-        }),
+        TS_DesktopWindowAndFrameUtils.setTitleSizeCenterWithMenuBar(this, "Tuğalsan's Gif Recorder", TS_DesktopJMenuButtonBar.of(
+                TS_DesktopJMenuButton.of("Exit", mx -> {
+                    if (!startTriggered.get()) {
+                        System.exit(0);
+                    }
+                    stopTriggered.set(true);
+                }),
                 TS_DesktopJMenuButton.of("Start", ms -> {
                     ms.setVisible(false);
                     start();
