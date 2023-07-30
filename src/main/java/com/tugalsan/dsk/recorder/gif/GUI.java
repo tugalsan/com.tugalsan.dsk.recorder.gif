@@ -60,7 +60,7 @@ public class GUI extends JFrame {
             var r = TS_InputScreenUtils.robot();
             while (!stopTriggered.get()) {
                 var begin = System.currentTimeMillis();
-                gif.accept(TS_InputScreenUtils.shotPictures(r, rect));
+                images.add(TS_InputScreenUtils.shotPictures(r, rect));
                 var end = System.currentTimeMillis();
                 TGS_UnSafe.run(() -> Thread.sleep(gif.timeBetweenFramesMS - (end - begin)));
                 Thread.yield();
