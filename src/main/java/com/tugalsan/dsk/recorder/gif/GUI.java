@@ -55,8 +55,8 @@ public class GUI extends JFrame {
         var gif = TS_FileGifWriter.of(file, 150, true);
         //RUN
         ConcurrentLinkedQueue<RenderedImage> images = new ConcurrentLinkedQueue();
-        var writerFinished = new AtomicBoolean(true);
-        var captureFinished = new AtomicBoolean(true);
+        var writerAlive = new AtomicBoolean(true);
+        var captureAlive = new AtomicBoolean(true);
         TS_ThreadAsync.now(() -> {//CAPTURE THREAD
             var r = TS_InputScreenUtils.robot();
             while (!stopTriggered.get()) {
@@ -66,7 +66,7 @@ public class GUI extends JFrame {
                 TGS_UnSafe.run(() -> Thread.sleep(gif.timeBetweenFramesMS - (end - begin)));
                 Thread.yield();
             }
-            captureFinished.set(false);
+            captureAlive.set(false);
         });
         TS_ThreadAsync.now(() -> {//WRITE THREAD
             while (!stopTriggered.get()) {
@@ -76,10 +76,10 @@ public class GUI extends JFrame {
                 Thread.yield();
             }
             gif.close();
-            writerFinished.set(false);
+            writerAlive.set(false);
         });
         TS_ThreadAsync.now(() -> {//EXIT THREAD
-            while (captureFinished.get() && writerFinished.get()) {
+            while (captureAlive.get() && writerAlive.get()) {
                 Thread.yield();
             }
             TS_DesktopPathUtils.run(file);
