@@ -39,6 +39,8 @@ public class GUI extends JFrame {
         ));
         TS_DesktopWindowAndFrameUtils.showAlwaysInTop(this, true);
     }
+    private AtomicBoolean startTriggered = new AtomicBoolean(false);
+    private AtomicBoolean stopTriggered = new AtomicBoolean(false);
 
     private void start() {
         startTriggered.set(true);
@@ -86,6 +88,4 @@ public class GUI extends JFrame {
             System.exit(0);
         });
     }
-    private AtomicBoolean startTriggered = new AtomicBoolean(false);
-    private AtomicBoolean stopTriggered = new AtomicBoolean(false);
 }
