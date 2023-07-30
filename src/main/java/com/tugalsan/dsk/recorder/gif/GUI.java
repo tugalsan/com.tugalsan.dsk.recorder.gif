@@ -9,7 +9,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.*;
-import javax.swing.event.*;
 
 public class GUI extends JFrame {
 
@@ -18,60 +17,28 @@ public class GUI extends JFrame {
     }
 
     private final TS_DesktopFrameResizer resizer;
-    private JMenu start, exit;
 
     private GUI() {
         resizer = TS_DesktopFrameResizer.of(this);
         TS_DesktopWindowAndFrameUtils.initUnDecorated(this);
         TS_DesktopWindowAndFrameUtils.setBackgroundTransparentBlack(this);
         TS_DesktopWindowAndFrameUtils.setBorderRed(this);
-        TS_DesktopWindowAndFrameUtils.setTitleSizeCenterWithMenuBar(this, "Tuğalsan's Gif Recorder", createMenuBar());
+        TS_DesktopWindowAndFrameUtils.setTitleSizeCenterWithMenuBar(this, "Tuğalsan's Gif Recorder", TS_DesktopJMenuButtonBar.of(TS_DesktopJMenuButton.of("Exit", mx -> {
+            if (!startTriggered.get()) {
+                System.exit(0);
+            }
+            stopTriggered.set(true);
+        }),
+                TS_DesktopJMenuButton.of("Start", ms -> {
+                    ms.setVisible(false);
+                    start();
+                })
+        ));
         TS_DesktopWindowAndFrameUtils.showAlwaysInTop(this, true);
     }
 
-    private JMenuBar createMenuBar() {
-        var bar = new JMenuBar();
-        exit = new JMenu("Exit");
-        exit.addMenuListener(new MenuListener() {
-            @Override
-            public void menuSelected(MenuEvent e) {
-                if (start.isVisible()) {
-                    System.exit(0);
-                } else {
-                    stoppTriggered.set(true);
-                }
-            }
-
-            @Override
-            public void menuDeselected(MenuEvent e) {
-            }
-
-            @Override
-            public void menuCanceled(MenuEvent e) {
-            }
-        });
-        bar.add(exit);
-        start = new JMenu("Start");
-        start.addMenuListener(new MenuListener() {
-            @Override
-            public void menuSelected(MenuEvent e) {
-                start.setVisible(false);
-                start();
-            }
-
-            @Override
-            public void menuDeselected(MenuEvent e) {
-            }
-
-            @Override
-            public void menuCanceled(MenuEvent e) {
-            }
-        });
-        bar.add(start);
-        return bar;
-    }
-
     private void start() {
+        startTriggered.set(true);
         //FETCH RECT
         var rect = resizer.fixIt_getRectangleWithoutMenuBar();
         TS_DesktopWindowAndFrameUtils.setUnDecoratedTransparent(this);
@@ -90,7 +57,7 @@ public class GUI extends JFrame {
         var writerFinished = new AtomicBoolean(true);
         var captureFinished = new AtomicBoolean(true);
         new Thread(() -> {//CAPTURE THREAD
-            while (!stoppTriggered.get()) {
+            while (!stopTriggered.get()) {
                 var begin = System.currentTimeMillis();
                 gif.accept(rt.createScreenCapture(rect));
                 var end = System.currentTimeMillis();
@@ -100,7 +67,7 @@ public class GUI extends JFrame {
             captureFinished.set(false);
         }).start();
         new Thread(() -> {//WRITER THREAD
-            while (!stoppTriggered.get()) {
+            while (!stopTriggered.get()) {
                 while (!images.isEmpty()) {
                     gif.accept(images.poll());
                 }
@@ -117,5 +84,6 @@ public class GUI extends JFrame {
             System.exit(0);
         }).start();
     }
-    AtomicBoolean stoppTriggered = new AtomicBoolean(false);
+    private AtomicBoolean startTriggered = new AtomicBoolean(false);
+    private AtomicBoolean stopTriggered = new AtomicBoolean(false);
 }
