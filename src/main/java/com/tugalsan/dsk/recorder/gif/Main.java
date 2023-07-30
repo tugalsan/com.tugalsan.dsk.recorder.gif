@@ -1,4 +1,4 @@
-package com.tugalsan.trm.recorder.gif;
+package com.tugalsan.dsk.recorder.gif;
 
 import com.tugalsan.api.desktop.server.*;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
