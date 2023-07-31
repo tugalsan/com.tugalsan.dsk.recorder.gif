@@ -50,7 +50,7 @@ public class Main {
                             System.exit(0);
                         }
                         //FETCH WRITER
-                        var gif = TS_FileGifWriter.of(file, 150, true);
+                        var gif = TS_FileGifWriter.open(file, 150, true);
                         //RUN
                         ConcurrentLinkedQueue<RenderedImage> images = new ConcurrentLinkedQueue();
                         var capture = TS_ThreadKillableBuilder.ofClass(Robot.class).name("capture")
@@ -77,8 +77,7 @@ public class Main {
                         var exit = TS_ThreadKillableBuilder.of().name("exit")
                                 .durLagNone().durMainMaxNone()
                                 .durLoop(Duration.ofSeconds(1))
-                                .runInitNone()
-                                .valPeriodicTrue()
+                                .runInitNone().valPeriodicTrue()
                                 .runMain(u -> {
                                     if (!capture.isDead() || !write.isDead()) {
                                         return;
