@@ -4,7 +4,6 @@ import com.tugalsan.api.desktop.server.*;
 import com.tugalsan.api.file.gif.server.TS_FileGifWriter;
 import com.tugalsan.api.input.server.TS_InputScreenUtils;
 import com.tugalsan.api.thread.server.killable.TS_ThreadKillableBuilder;
-import com.tugalsan.api.thread.server.killable.TS_ThreadKillablePool;
 import java.awt.Robot;
 import java.awt.image.RenderedImage;
 import java.time.Duration;
@@ -55,44 +54,38 @@ public class Main {
                         //RUN
                         ConcurrentLinkedQueue<RenderedImage> images = new ConcurrentLinkedQueue();
                         var durMax = Duration.ofSeconds(60);
-                        var pool = new TS_ThreadKillablePool();
-                        pool.add(TS_ThreadKillableBuilder.ofClass(Robot.class).name("capture")
+                        var capture = TS_ThreadKillableBuilder.ofClass(Robot.class).name("capture")
                                 .durLag(Duration.ofSeconds(1))
                                 .durMax(durMax)
                                 .durLoop(Duration.ofMillis(gif.timeBetweenFramesMS))
                                 .runInit(() -> TS_InputScreenUtils.robot())
-                                .valPeriodic(robot -> !stopTriggered.get())
+                                .valPeriodicDepends(robot -> !stopTriggered.get())
                                 .runMain(robot -> images.add(TS_InputScreenUtils.shotPictures(robot, rect)))
-                                .runFinalNone()
-                        );
-                        pool.add(TS_ThreadKillableBuilder.of().name("write")
+                                .runFinalNone().start();
+
+                        var write = TS_ThreadKillableBuilder.of().name("write")
                                 .durLagNone().durMaxNone().durLoopNone().runInitNone()
-                                .valPeriodic(u -> !stopTriggered.get())
+                                .valPeriodicDepends(u -> !stopTriggered.get())
                                 .runMain(u -> {
                                     while (!images.isEmpty()) {
                                         gif.accept(images.poll());
                                     }
                                 })
-                                .runFinalNone()
-                        );
-                        pool.add(TS_ThreadKillableBuilder.of().name("exit")
-                                .durLagNone().durMaxNone().durLoopNone().runInitNone()
-                                .valPeriodic(u -> !stopTriggered.get())
+                                .runFinalNone().start();
+
+                        var exit = TS_ThreadKillableBuilder.of().name("exit")
+                                .durLagNone().durMaxNone()
+                                .durLoop(Duration.ofSeconds(1))
+                                .runInitNone()
+                                .valPeriodicTrue()
                                 .runMain(u -> {
-                                    var capture = pool.get("capture");
-                                    if (capture != null && !capture.isDead()) {
-                                        return;
-                                    }
-                                    var write = pool.get("write");
-                                    if (write != null && !write.isDead()) {
+                                    if (!capture.isDead() || !write.isDead()) {
                                         return;
                                     }
                                     TS_DesktopPathUtils.run(file);
                                     System.exit(0);
                                 })
-                                .runFinalNone()
-                        );
-                        pool.startAll();
+                                .runFinalNone().start();
                     })
             ));
             TS_DesktopWindowAndFrameUtils.showAlwaysInTop(frame, true);
