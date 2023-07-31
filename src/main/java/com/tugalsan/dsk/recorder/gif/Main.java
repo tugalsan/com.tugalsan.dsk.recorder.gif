@@ -53,28 +53,29 @@ public class Main {
                         var gif = TS_FileGifWriter.of(file, 150, true);
                         //RUN
                         ConcurrentLinkedQueue<RenderedImage> images = new ConcurrentLinkedQueue();
-                        var durMax = Duration.ofSeconds(60);
                         var capture = TS_ThreadKillableBuilder.ofClass(Robot.class).name("capture")
                                 .durLag(Duration.ofSeconds(1))
-                                .durMax(durMax)
+                                .durMainMax(Duration.ofSeconds(60))
                                 .durLoop(Duration.ofMillis(gif.timeBetweenFramesMS))
                                 .runInit(() -> TS_InputScreenUtils.robot())
                                 .valPeriodicDepends(robot -> !stopTriggered.get())
                                 .runMain(robot -> images.add(TS_InputScreenUtils.shotPictures(robot, rect)))
-                                .runFinalNone().start();
+                                .runFinal(robot -> stopTriggered.set(true))
+                                .start();
 
                         var write = TS_ThreadKillableBuilder.of().name("write")
-                                .durLagNone().durMaxNone().durLoopNone().runInitNone()
+                                .durLagNone().durMainMaxNone().durLoopNone().runInitNone()
                                 .valPeriodicDepends(u -> !stopTriggered.get())
                                 .runMain(u -> {
                                     while (!images.isEmpty()) {
                                         gif.accept(images.poll());
                                     }
                                 })
-                                .runFinalNone().start();
+                                .runFinal(u -> gif.close())
+                                .start();
 
                         var exit = TS_ThreadKillableBuilder.of().name("exit")
-                                .durLagNone().durMaxNone()
+                                .durLagNone().durMainMaxNone()
                                 .durLoop(Duration.ofSeconds(1))
                                 .runInitNone()
                                 .valPeriodicTrue()
