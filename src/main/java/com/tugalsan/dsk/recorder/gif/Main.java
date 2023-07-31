@@ -4,11 +4,11 @@ import com.tugalsan.api.desktop.server.*;
 import com.tugalsan.api.file.gif.server.TS_FileGifWriter;
 import com.tugalsan.api.input.server.TS_InputScreenUtils;
 import com.tugalsan.api.thread.server.killable.TS_ThreadKillableBuilder;
+import com.tugalsan.api.thread.server.safe.TS_ThreadSafeLst;
 import java.awt.Robot;
 import java.awt.image.RenderedImage;
 import java.time.Duration;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.JFrame;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
@@ -52,40 +52,32 @@ public class Main {
                         //FETCH WRITER
                         var gif = TS_FileGifWriter.open(file, 150, true);
                         //RUN
-                        ConcurrentLinkedQueue<RenderedImage> images = new ConcurrentLinkedQueue();
-                        var capture = TS_ThreadKillableBuilder.ofClass(Robot.class).name("capture")
-                                .durLag(Duration.ofSeconds(1))
-                                .durMainMax(Duration.ofSeconds(60))
-                                .durLoop(Duration.ofMillis(gif.timeBetweenFramesMS))
-                                .runInit(() -> TS_InputScreenUtils.robot())
-                                .valPeriodicDepends(robot -> !stopTriggered.get())
-                                .runMain(robot -> images.add(TS_InputScreenUtils.shotPictures(robot, rect)))
-                                .runFinal(robot -> stopTriggered.set(true))
+                        TS_ThreadSafeLst<RenderedImage> images = new TS_ThreadSafeLst();
+
+                        var capture = TS_ThreadKillableBuilder.name("capture")
+                                .init(() -> TS_InputScreenUtils.robot())
+                                .main((killTrigger, robot) -> images.add(TS_InputScreenUtils.shotPictures((Robot) robot, rect)))
+                                .fin(robot -> stopTriggered.set(true))
+                                .cycle_mainValidation_mainDuration(robot -> !stopTriggered.get(), Duration.ofMillis(gif.timeBetweenFramesMS))
                                 .start();
 
-                        var write = TS_ThreadKillableBuilder.of().name("write")
-                                .durLagNone().durMainMaxNone().durLoopNone().runInitNone()
-                                .valPeriodicDepends(u -> !stopTriggered.get())
-                                .runMain(u -> {
-                                    while (!images.isEmpty()) {
-                                        gif.accept(images.poll());
-                                    }
-                                })
-                                .runFinal(u -> gif.close())
+                        var write = TS_ThreadKillableBuilder.name("write").initEmpty()
+                                .main((killTrigger, e) -> gif.accept(images.popFirst(img -> true)))
+                                .fin(e -> stopTriggered.set(true))
+                                .cycle_mainValidation(e -> !images.isEmpty())
                                 .start();
 
-                        var exit = TS_ThreadKillableBuilder.of().name("exit")
-                                .durLagNone().durMainMaxNone()
-                                .durLoop(Duration.ofSeconds(1))
-                                .runInitNone().valPeriodicTrue()
-                                .runMain(u -> {
+                        var exit = TS_ThreadKillableBuilder.name("write").initEmpty()
+                                .main((killTrigger, e) -> {
                                     if (!capture.isDead() || !write.isDead()) {
                                         return;
                                     }
                                     TS_DesktopPathUtils.run(file);
                                     System.exit(0);
                                 })
-                                .runFinalNone().start();
+                                .fin(e -> stopTriggered.set(true))
+                                .cycle_mainDuration(Duration.ofSeconds(1))
+                                .start();
                     })
             ));
             TS_DesktopWindowAndFrameUtils.showAlwaysInTop(frame, true);
