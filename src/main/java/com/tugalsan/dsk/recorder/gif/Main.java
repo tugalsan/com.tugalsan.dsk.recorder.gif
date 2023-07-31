@@ -16,7 +16,7 @@ import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 //WHEN RUNNING IN NETBEANS, ALL DEPENDENCIES SHOULD HAVE TARGET FOLDER!
 //cd C:\me\codes\com.tugalsan\dsk\com.tugalsan.dsk.recorder.gif
-//--enable-preview --add-modules jdk.incubator.concurrent -jar target/com.tugalsan.dsk.recorder.gif-1.0-SNAPSHOT-jar-with-dependencies.jar
+//java --enable-preview --add-modules jdk.incubator.concurrent -jar target/com.tugalsan.dsk.recorder.gif-1.0-SNAPSHOT-jar-with-dependencies.jar
 public class Main {
 
     //TODO ffmpeg -f gif -i infile.gif outfile.mp4
@@ -92,6 +92,7 @@ public class Main {
                                 })
                                 .runFinalNone()
                         );
+                        pool.startAll();
                     })
             ));
             TS_DesktopWindowAndFrameUtils.showAlwaysInTop(frame, true);
