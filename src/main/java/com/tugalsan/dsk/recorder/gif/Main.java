@@ -48,21 +48,14 @@ public class Main {
                             TS_DesktopDialogInfoUtils.show("ERROR", "No file selected");
                             System.exit(0);
                         }
-                        //FETCH WRITER
-                        var gif = TS_FileGifWriter.open(file, 150, true);
                         //RUN
                         TS_ThreadSafeLst<RenderedImage> images = new TS_ThreadSafeLst();
+                        var gif = TS_FileGifWriter.open(file, 150, true);
                         var capture = TS_ThreadStructBuilder
                                 .init(() -> TS_InputScreenUtils.robot())
                                 .main((killTrigger, robot) -> {
                                     images.add(TS_InputScreenUtils.shotPictures((Robot) robot, rect));
-//                                    gif.accept(images.popFirst());
                                 })
-                                //                                .fin(robot -> {
-                                //                                    gif.close();
-                                //                                    TS_DesktopPathUtils.run(file);
-                                //                                    System.exit(0);
-                                //                                })
                                 .cycle_mainValidation_mainDuration(
                                         robot -> !stopTriggered.get(),
                                         Duration.ofMillis(gif.timeBetweenFramesMS)
