@@ -7,6 +7,7 @@ import com.tugalsan.api.input.server.*;
 import com.tugalsan.api.thread.server.safe.*;
 import java.awt.*;
 import java.awt.image.*;
+import static java.lang.System.out;
 import java.time.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
@@ -71,7 +72,7 @@ public class Main {
                                 .asyncRun();
 
                         TS_ThreadStructBuilder.asyncRun(killTriggered -> {
-
+                            out.println("Hello");
                         });
                     })
             ));
