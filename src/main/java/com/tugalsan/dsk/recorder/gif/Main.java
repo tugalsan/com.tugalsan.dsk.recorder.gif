@@ -53,7 +53,7 @@ public class Main {
                         var gif = TS_FileGifWriter.open(file, 150, true);
                         //RUN
                         TS_ThreadSafeLst<RenderedImage> images = new TS_ThreadSafeLst();
-                        var capture = TS_ThreadStructBuilder.name("capture")
+                        var capture = TS_ThreadStructBuilder
                                 .init(() -> TS_InputScreenUtils.robot())
                                 .main((killTrigger, robot) -> images.add(TS_InputScreenUtils.shotPictures((Robot) robot, rect)))
                                 .cycle_mainValidation_mainDuration(
@@ -68,9 +68,8 @@ public class Main {
                                     TS_DesktopPathUtils.run(file);
                                     System.exit(0);
                                 })
-                                .cycle_mainValidation(e -> !capture.isDead())
+                                .cycle_mainValidation(e -> !images.isEmpty() && !capture.isDead())
                                 .asyncRun();
-
                         TS_ThreadStructBuilder.asyncRun(killTriggered -> {
                             out.println("Hello");
                         });
