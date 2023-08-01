@@ -1,17 +1,16 @@
 package com.tugalsan.dsk.recorder.gif;
 
+import com.tugalsan.api.thread.server.struct.TS_ThreadStructBuilder;
 import com.tugalsan.api.desktop.server.*;
-import com.tugalsan.api.file.gif.server.TS_FileGifWriter;
-import com.tugalsan.api.input.server.TS_InputScreenUtils;
-import com.tugalsan.api.thread.server.killable.TS_ThreadKillableBuilder;
-import com.tugalsan.api.thread.server.safe.TS_ThreadSafeLst;
-import java.awt.Robot;
-import java.awt.image.RenderedImage;
-import java.time.Duration;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-import javax.swing.JFrame;
-import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+import com.tugalsan.api.file.gif.server.*;
+import com.tugalsan.api.input.server.*;
+import com.tugalsan.api.thread.server.safe.*;
+import java.awt.*;
+import java.awt.image.*;
+import java.time.*;
+import java.util.*;
+import java.util.concurrent.atomic.*;
+import javax.swing.*;
 
 //WHEN RUNNING IN NETBEANS, ALL DEPENDENCIES SHOULD HAVE TARGET FOLDER!
 //cd C:\me\codes\com.tugalsan\dsk\com.tugalsan.dsk.recorder.gif
@@ -22,7 +21,7 @@ public class Main {
     public static void main(String[] args) {
         TS_DesktopMainUtils.setThemeAndinvokeLaterAndFixTheme(() -> {
             var frame = new JFrame();
-            frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+            frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
             var resizer = TS_DesktopFrameResizer.of(frame);
             TS_DesktopWindowAndFrameUtils.initUnDecorated(frame);
@@ -53,31 +52,23 @@ public class Main {
                         var gif = TS_FileGifWriter.open(file, 150, true);
                         //RUN
                         TS_ThreadSafeLst<RenderedImage> images = new TS_ThreadSafeLst();
-
-                        var capture = TS_ThreadKillableBuilder.name("capture")
-                                .init(() -> TS_InputScreenUtils.robot())
+                        var capture = TS_ThreadStructBuilder.name("capture").init(() -> TS_InputScreenUtils.robot())
                                 .main((killTrigger, robot) -> images.add(TS_InputScreenUtils.shotPictures((Robot) robot, rect)))
-                                .fin(robot -> stopTriggered.set(true))
-                                .cycle_mainValidation_mainDuration(robot -> !stopTriggered.get(), Duration.ofMillis(gif.timeBetweenFramesMS))
-                                .start();
-
-                        var write = TS_ThreadKillableBuilder.name("write").initEmpty()
-                                .main((killTrigger, e) -> gif.accept(images.popFirst(img -> true)))
-                                .fin(e -> stopTriggered.set(true))
-                                .cycle_mainValidation(e -> !images.isEmpty())
-                                .start();
-
-                        var exit = TS_ThreadKillableBuilder.name("write").initEmpty()
-                                .main((killTrigger, e) -> {
-                                    if (!capture.isDead() || !write.isDead()) {
-                                        return;
-                                    }
+                                .finEmpty()
+                                .cycle_mainValidation_mainDuration(
+                                        robot -> !stopTriggered.get(),
+                                        Duration.ofMillis(gif.timeBetweenFramesMS)
+                                )
+                                .asyncRun();
+                        TS_ThreadStructBuilder.name("write").initEmpty()
+                                .main((killTrigger, e) -> gif.accept(images.popFirst()))
+                                .fin(e -> {
+                                    gif.close();
                                     TS_DesktopPathUtils.run(file);
                                     System.exit(0);
                                 })
-                                .fin(e -> stopTriggered.set(true))
-                                .cycle_mainDuration(Duration.ofSeconds(1))
-                                .start();
+                                .cycle_mainValidation(e -> !capture.isDead())
+                                .asyncRun();
                     })
             ));
             TS_DesktopWindowAndFrameUtils.showAlwaysInTop(frame, true);
