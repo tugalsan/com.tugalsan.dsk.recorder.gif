@@ -52,15 +52,15 @@ public class Main {
                         var gif = TS_FileGifWriter.open(file, 150, true);
                         //RUN
                         TS_ThreadSafeLst<RenderedImage> images = new TS_ThreadSafeLst();
-                        var capture = TS_ThreadStructBuilder.name("capture").init(() -> TS_InputScreenUtils.robot())
+                        var capture = TS_ThreadStructBuilder.name("capture")
+                                .init(() -> TS_InputScreenUtils.robot())
                                 .main((killTrigger, robot) -> images.add(TS_InputScreenUtils.shotPictures((Robot) robot, rect)))
-                                .finEmpty()
                                 .cycle_mainValidation_mainDuration(
                                         robot -> !stopTriggered.get(),
                                         Duration.ofMillis(gif.timeBetweenFramesMS)
                                 )
                                 .asyncRun();
-                        TS_ThreadStructBuilder.name("write").initEmpty()
+                        TS_ThreadStructBuilder.name("write")
                                 .main((killTrigger, e) -> gif.accept(images.popFirst()))
                                 .fin(e -> {
                                     gif.close();
@@ -69,6 +69,10 @@ public class Main {
                                 })
                                 .cycle_mainValidation(e -> !capture.isDead())
                                 .asyncRun();
+
+                        TS_ThreadStructBuilder.asyncRun(killTriggered -> {
+
+                        });
                     })
             ));
             TS_DesktopWindowAndFrameUtils.showAlwaysInTop(frame, true);
