@@ -7,7 +7,6 @@ import com.tugalsan.api.input.server.*;
 import com.tugalsan.api.thread.server.safe.*;
 import java.awt.*;
 import java.awt.image.*;
-import static java.lang.System.out;
 import java.time.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
@@ -55,24 +54,31 @@ public class Main {
                         TS_ThreadSafeLst<RenderedImage> images = new TS_ThreadSafeLst();
                         var capture = TS_ThreadStructBuilder
                                 .init(() -> TS_InputScreenUtils.robot())
-                                .main((killTrigger, robot) -> images.add(TS_InputScreenUtils.shotPictures((Robot) robot, rect)))
+                                .main((killTrigger, robot) -> {
+                                    images.add(TS_InputScreenUtils.shotPictures((Robot) robot, rect));
+//                                    gif.accept(images.popFirst());
+                                })
+                                //                                .fin(robot -> {
+                                //                                    gif.close();
+                                //                                    TS_DesktopPathUtils.run(file);
+                                //                                    System.exit(0);
+                                //                                })
                                 .cycle_mainValidation_mainDuration(
                                         robot -> !stopTriggered.get(),
                                         Duration.ofMillis(gif.timeBetweenFramesMS)
                                 )
                                 .asyncRun();
-                        TS_ThreadStructBuilder.name("write")
-                                .main((killTrigger, e) -> gif.accept(images.popFirst()))
-                                .fin(e -> {
+                        TS_ThreadStructBuilder
+                                .main(killTrigger -> {
+                                    gif.accept(images.popFirst());
+                                })
+                                .fin(() -> {
                                     gif.close();
                                     TS_DesktopPathUtils.run(file);
                                     System.exit(0);
                                 })
-                                .cycle_mainValidation(e -> !images.isEmpty() && !capture.isDead())
+                                .cycle_mainValidation(e -> !images.isEmpty() || !capture.isDead())
                                 .asyncRun();
-                        TS_ThreadStructBuilder.asyncRun(killTriggered -> {
-                            out.println("Hello");
-                        });
                     })
             ));
             TS_DesktopWindowAndFrameUtils.showAlwaysInTop(frame, true);
