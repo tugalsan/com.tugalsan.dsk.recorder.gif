@@ -7,7 +7,6 @@ import com.tugalsan.api.input.server.*;
 import com.tugalsan.api.thread.server.safe.*;
 import java.awt.*;
 import java.awt.image.*;
-import java.time.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 import javax.swing.*;
@@ -49,28 +48,21 @@ public class Main {
                             System.exit(0);
                         }
                         //RUN
-                        TS_ThreadSafeLst<RenderedImage> images = new TS_ThreadSafeLst();
-                        var gif = TS_FileGifWriter.open(file, 150, true);
-                        var capture = TS_ThreadStructBuilder
+                        TS_ThreadSafeLst<RenderedImage> buffer = new TS_ThreadSafeLst();
+                        var gifWriter = TS_FileGifWriter.open(file, 150, true);
+                        var asyncCapture = TS_ThreadStructBuilder
                                 .init(() -> TS_InputScreenUtils.robot())
-                                .main((killTrigger, robot) -> {
-                                    images.add(TS_InputScreenUtils.shotPictures((Robot) robot, rect));
-                                })
-                                .cycle_mainValidation_mainDuration(
-                                        robot -> !stopTriggered.get(),
-                                        Duration.ofMillis(gif.timeBetweenFramesMS)
-                                )
+                                .main((killTrigger, robot) -> buffer.add(TS_InputScreenUtils.shotPictures((Robot) robot, rect)))
+                                .cycle_mainValidation_mainDuration(robot -> !stopTriggered.get(), gifWriter.timeBetweenFramesMS())
                                 .asyncRun();
-                        TS_ThreadStructBuilder
-                                .main(killTrigger -> {
-                                    gif.accept(images.popFirst());
-                                })
+                        var asyncWriter = TS_ThreadStructBuilder
+                                .main(killTrigger -> gifWriter.write(buffer.popFirst()))
                                 .fin(() -> {
-                                    gif.close();
+                                    gifWriter.close();
                                     TS_DesktopPathUtils.run(file);
                                     System.exit(0);
                                 })
-                                .cycle_mainValidation(e -> !images.isEmpty() || !capture.isDead())
+                                .cycle_mainValidation(e -> buffer.isPresent() || asyncCapture.isNotDead())
                                 .asyncRun();
                     })
             ));
