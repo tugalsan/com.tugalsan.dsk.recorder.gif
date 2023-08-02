@@ -62,7 +62,7 @@ public class Main {
                                     TS_DesktopPathUtils.run(file);
                                     System.exit(0);
                                 })
-                                .cycle_forever()
+                                .cycle_mainDuration(gifWriter.timeBetweenFramesMS())
                                 .asyncRun();
                     })
             ));
