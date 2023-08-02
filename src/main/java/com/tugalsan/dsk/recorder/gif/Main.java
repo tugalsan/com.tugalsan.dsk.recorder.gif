@@ -27,13 +27,13 @@ public class Main {
             TS_DesktopWindowAndFrameUtils.setBackgroundTransparentBlack(frame);
             TS_DesktopWindowAndFrameUtils.setBorderRed(frame);
             var startTriggered = new AtomicBoolean(false);
-            var stopTriggered = new AtomicBoolean(false);
+            var killTriggered = new AtomicBoolean(false);
             TS_DesktopWindowAndFrameUtils.setTitleSizeCenterWithMenuBar(frame, "Tuğalsan's Gif Recorder", TS_DesktopJMenuButtonBar.of(
                     TS_DesktopJMenuButton.of("Exit", mx -> {
                         if (!startTriggered.get()) {
                             System.exit(0);
                         }
-                        stopTriggered.set(true);
+                        killTriggered.set(true);
                     }),
                     TS_DesktopJMenuButton.of("Start", ms -> {
                         ms.setVisible(false);
@@ -50,19 +50,19 @@ public class Main {
                         //RUN
                         TS_ThreadSafeLst<RenderedImage> buffer = new TS_ThreadSafeLst();
                         var gifWriter = TS_FileGifWriter.open(file, 150, true);
-                        var asyncCapture = TS_ThreadStructBuilder
+                        TS_ThreadStructBuilder.of(killTriggered)
                                 .init(() -> TS_InputScreenUtils.robot())
                                 .main((killTrigger, robot) -> buffer.add(TS_InputScreenUtils.shotPictures((Robot) robot, rect)))
-                                .cycle_mainValidation_mainDuration(robot -> !stopTriggered.get(), gifWriter.timeBetweenFramesMS())
+                                .cycle_mainDuration(gifWriter.timeBetweenFramesMS())
                                 .asyncRun();
-                        var asyncWriter = TS_ThreadStructBuilder
+                        TS_ThreadStructBuilder.of(killTriggered)
                                 .main(killTrigger -> gifWriter.write(buffer.popFirst()))
                                 .fin(() -> {
                                     gifWriter.close();
                                     TS_DesktopPathUtils.run(file);
                                     System.exit(0);
                                 })
-                                .cycle_mainValidation(e -> buffer.isPresent() || asyncCapture.isNotDead())
+                                .cycle_forever()
                                 .asyncRun();
                     })
             ));
