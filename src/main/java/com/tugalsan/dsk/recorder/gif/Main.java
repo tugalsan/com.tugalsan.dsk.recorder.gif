@@ -8,7 +8,6 @@ import com.tugalsan.api.thread.server.safe.*;
 import java.awt.*;
 import java.awt.image.*;
 import java.util.*;
-import java.util.concurrent.atomic.*;
 import javax.swing.*;
 
 //WHEN RUNNING IN NETBEANS, ALL DEPENDENCIES SHOULD HAVE TARGET FOLDER!
@@ -21,23 +20,22 @@ public class Main {
         TS_DesktopMainUtils.setThemeAndinvokeLaterAndFixTheme(() -> {
             var frame = new JFrame();
             frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
             var resizer = TS_DesktopFrameResizer.of(frame);
             TS_DesktopWindowAndFrameUtils.initUnDecorated(frame);
             TS_DesktopWindowAndFrameUtils.setBackgroundTransparentBlack(frame);
             TS_DesktopWindowAndFrameUtils.setBorderRed(frame);
-            var startTriggered = new AtomicBoolean(false);
-            var killTriggered = new AtomicBoolean(false);
+            var startTriggered = TS_ThreadSafeTrigger.of();
+            var killTriggered = TS_ThreadSafeTrigger.of();
             TS_DesktopWindowAndFrameUtils.setTitleSizeCenterWithMenuBar(frame, "Tuğalsan's Gif Recorder", TS_DesktopJMenuButtonBar.of(
                     TS_DesktopJMenuButton.of("Exit", mx -> {
-                        if (!startTriggered.get()) {
+                        if (startTriggered.hasNotTriggered()) {
                             System.exit(0);
                         }
-                        killTriggered.set(true);
+                        killTriggered.trigger();
                     }),
                     TS_DesktopJMenuButton.of("Start", ms -> {
                         ms.setVisible(false);
-                        startTriggered.set(true);
+                        startTriggered.trigger();
                         //FETCH RECT
                         var rect = resizer.fixIt_getRectangleWithoutMenuBar();
                         TS_DesktopWindowAndFrameUtils.setUnDecoratedTransparent(frame);
