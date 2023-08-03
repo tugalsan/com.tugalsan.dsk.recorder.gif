@@ -1,10 +1,10 @@
 package com.tugalsan.dsk.recorder.gif;
 
-import com.tugalsan.api.thread.server.struct.TS_ThreadStructBuilder;
+import com.tugalsan.api.thread.server.async.TS_ThreadAsyncBuilder;
 import com.tugalsan.api.desktop.server.*;
 import com.tugalsan.api.file.gif.server.*;
 import com.tugalsan.api.input.server.*;
-import com.tugalsan.api.thread.server.safe.*;
+import com.tugalsan.api.thread.server.sync.*;
 import java.awt.*;
 import java.awt.image.*;
 import java.util.*;
@@ -24,10 +24,9 @@ public class Main {
             TS_DesktopWindowAndFrameUtils.initUnDecorated(frame);
             TS_DesktopWindowAndFrameUtils.setBackgroundTransparentBlack(frame);
             TS_DesktopWindowAndFrameUtils.setBorderRed(frame);
-            var startTriggered = TS_ThreadSafeTrigger.of();
-            var killTriggered = TS_ThreadSafeTrigger.of();
-            TS_DesktopWindowAndFrameUtils.setTitleSizeCenterWithMenuBar(frame, "Tuğalsan's Gif Recorder", TS_DesktopJMenuButtonBar.of(
-                    TS_DesktopJMenuButton.of("Exit", mx -> {
+            var startTriggered = TS_ThreadSyncTrigger.of();
+            var killTriggered = TS_ThreadSyncTrigger.of();
+            TS_DesktopWindowAndFrameUtils.setTitleSizeCenterWithMenuBar(frame, "Tuğalsan's Gif Recorder", TS_DesktopJMenuButtonBar.of(TS_DesktopJMenuButton.of("Exit", mx -> {
                         if (startTriggered.hasNotTriggered()) {
                             System.exit(0);
                         }
@@ -46,14 +45,14 @@ public class Main {
                             System.exit(0);
                         }
                         //RUN
-                        TS_ThreadSafeLst<RenderedImage> buffer = new TS_ThreadSafeLst();
+                        TS_ThreadSyncLst<RenderedImage> buffer = new TS_ThreadSyncLst();
                         var gifWriter = TS_FileGifWriter.open(file, 150, true);
-                        TS_ThreadStructBuilder.of(killTriggered)
+                        TS_ThreadAsyncBuilder.of(killTriggered)
                                 .init(() -> TS_InputScreenUtils.robot())
                                 .main((killTrigger, robot) -> buffer.add(TS_InputScreenUtils.shotPictures((Robot) robot, rect)))
                                 .cycle_mainDuration(gifWriter.timeBetweenFramesMS())
                                 .asyncRun();
-                        TS_ThreadStructBuilder.of(killTriggered)
+                        TS_ThreadAsyncBuilder.of(killTriggered)
                                 .main(killTrigger -> gifWriter.write(buffer.popFirst()))
                                 .fin(() -> {
                                     gifWriter.close();
