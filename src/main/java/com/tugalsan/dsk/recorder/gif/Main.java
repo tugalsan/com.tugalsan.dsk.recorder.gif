@@ -50,7 +50,7 @@ public class Main {
                         TS_ThreadAsyncBuilder.of(killTriggered)
                                 .init(() -> TS_InputScreenUtils.robot())
                                 .main((killTrigger, robot) -> buffer.add(TS_InputScreenUtils.shotPictures((Robot) robot, rect)))
-                                .cycle_mainDuration(gifWriter.timeBetweenFramesMS())
+                                .cycle_mainPeriod(gifWriter.timeBetweenFramesMS())
                                 .asyncRun();
                         TS_ThreadAsyncBuilder.of(killTriggered)
                                 .main(killTrigger -> gifWriter.write(buffer.popFirst()))
@@ -59,7 +59,7 @@ public class Main {
                                     TS_DesktopPathUtils.run(file);
                                     System.exit(0);
                                 })
-                                .cycle_mainDuration(gifWriter.timeBetweenFramesMS())
+                                .cycle_mainPeriod(gifWriter.timeBetweenFramesMS())
                                 .asyncRun();
                     })
             ));
