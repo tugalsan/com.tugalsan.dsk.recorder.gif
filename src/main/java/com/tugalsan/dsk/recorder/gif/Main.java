@@ -48,8 +48,8 @@ public class Main {
                         TS_ThreadSyncLst<RenderedImage> buffer = new TS_ThreadSyncLst();
                         var gifWriter = TS_FileGifWriter.open(file, 150, true);
                         TS_ThreadAsyncBuilder.of(killTriggered)
-                                .init(() -> TS_InputScreenUtils.robot())
-                                .main((killTrigger, robot) -> buffer.add(TS_InputScreenUtils.shotPictures((Robot) robot, rect)))
+                                .init(() -> TS_InputCommonUtils.robot())
+                                .main((killTrigger, robot) -> buffer.add(TS_InputScreenUtils.shotPicture((Robot) robot, rect)))
                                 .cycle_mainPeriod(gifWriter.timeBetweenFramesMS())
                                 .asyncRun();
                         TS_ThreadAsyncBuilder.of(killTriggered)
