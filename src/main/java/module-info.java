@@ -3,7 +3,7 @@ module com.tugalsan.dsk.recorder.gif {
     requires com.tugalsan.api.unsafe;
     requires com.tugalsan.api.validator;
     requires com.tugalsan.api.runnable;
-    requires com.tugalsan.api.callable;
+    requires com.tugalsan.api.function;
     requires com.tugalsan.api.desktop;
     requires com.tugalsan.api.file.gif;
     requires com.tugalsan.api.thread;
