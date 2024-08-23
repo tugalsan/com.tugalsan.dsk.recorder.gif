@@ -1,12 +1,16 @@
 package com.tugalsan.dsk.recorder.gif;
 
+import com.tugalsan.api.charset.client.TGS_CharSetCast;
 import com.tugalsan.api.thread.server.async.TS_ThreadAsyncBuilder;
 import com.tugalsan.api.desktop.server.*;
 import com.tugalsan.api.file.gif.server.*;
+import com.tugalsan.api.file.server.TS_FileUtils;
+import com.tugalsan.api.function.client.TGS_FuncEffectivelyFinal;
 import com.tugalsan.api.input.server.*;
 import com.tugalsan.api.thread.server.sync.*;
 import java.awt.*;
 import java.awt.image.*;
+import java.nio.file.Path;
 import java.util.*;
 import javax.swing.*;
 
@@ -27,11 +31,11 @@ public class Main {
             var startTriggered = TS_ThreadSyncTrigger.of();
             var killTriggered = TS_ThreadSyncTrigger.of();
             TS_DesktopWindowAndFrameUtils.setTitleSizeCenterWithMenuBar(frame, "Tuğalsan's Gif Recorder", TS_DesktopJMenuButtonBar.of(TS_DesktopJMenuButton.of("Exit", mx -> {
-                        if (startTriggered.hasNotTriggered()) {
-                            System.exit(0);
-                        }
-                        killTriggered.trigger();
-                    }),
+                if (startTriggered.hasNotTriggered()) {
+                    System.exit(0);
+                }
+                killTriggered.trigger();
+            }),
                     TS_DesktopJMenuButton.of("Start", ms -> {
                         ms.setVisible(false);
                         startTriggered.trigger();
@@ -39,11 +43,19 @@ public class Main {
                         var rect = resizer.fixIt_getRectangleWithoutMenuBar();
                         TS_DesktopWindowAndFrameUtils.setUnDecoratedTransparent(frame);
                         //FETCH FILE
-                        var file = TS_DesktopPathUtils.save("Save title", Optional.empty()).orElse(null);
-                        if (file == null) {
-                            TS_DesktopDialogInfoUtils.show("ERROR", "No file selected");
-                            System.exit(0);
-                        }
+                        var file = TGS_FuncEffectivelyFinal.of(Path.class).coronateAs(__ -> {
+                            var _file = TS_DesktopPathUtils.save("Save title", Optional.empty()).orElse(null);
+                            if (_file == null) {
+                                TS_DesktopDialogInfoUtils.show("ERROR", "No file selected");
+                                System.exit(0);
+                            }
+                            var _fileType = TS_FileUtils.getNameType(_file);
+                            if (!TGS_CharSetCast.english().endsWithIgnoreCase(_fileType, ".gif")) {
+                                _file = Path.of(_file.toAbsolutePath().toString() + ".gif");
+                            }
+                            return _file;
+                        });
+
                         //RUN
                         TS_ThreadSyncLst<RenderedImage> buffer = TS_ThreadSyncLst.of();
                         var gifWriter = TS_FileGifWriter.open(file, 150, true);
