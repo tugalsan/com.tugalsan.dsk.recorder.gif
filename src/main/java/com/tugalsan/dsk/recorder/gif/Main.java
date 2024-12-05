@@ -57,7 +57,7 @@ public class Main {
                         });
 
                         //RUN
-                        TS_ThreadSyncLst<RenderedImage> buffer = TS_ThreadSyncLst.of();
+                        TS_ThreadSyncLst<RenderedImage> buffer = TS_ThreadSyncLst.ofSlowRead();
                         var gifWriter = TS_FileGifWriter.open(file, 150, true);
                         TS_ThreadAsyncBuilder.of(killTriggered)
                                 .init(() -> TS_InputCommonUtils.robot())
