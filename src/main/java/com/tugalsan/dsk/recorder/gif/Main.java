@@ -65,7 +65,7 @@ public class Main {
                                 .cycle_mainPeriod(gifWriter.timeBetweenFramesMS())
                                 .asyncRun();
                         TS_ThreadAsyncBuilder.of(killTriggered)
-                                .main(killTrigger -> gifWriter.write(buffer.popFirst()))
+                                .main(killTrigger -> gifWriter.write(buffer.removeAndPopFirst()))
                                 .fin(() -> {
                                     gifWriter.close();
                                     TS_DesktopPathUtils.run(file);
