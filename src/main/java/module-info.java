@@ -1,6 +1,6 @@
 module com.tugalsan.dsk.recorder.gif {
     requires java.desktop;
-    requires com.tugalsan.api.unsafe;
+    
     requires com.tugalsan.api.function;
     requires com.tugalsan.api.desktop;
     requires com.tugalsan.api.union;

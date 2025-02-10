@@ -5,7 +5,7 @@ import com.tugalsan.api.thread.server.async.TS_ThreadAsyncBuilder;
 import com.tugalsan.api.desktop.server.*;
 import com.tugalsan.api.file.gif.server.*;
 import com.tugalsan.api.file.server.TS_FileUtils;
-import com.tugalsan.api.function.client.TGS_FuncEffectivelyFinal;
+import com.tugalsan.api.function.client.maythrow.uncheckedexceptions.TGS_FuncMTUCEEffectivelyFinal;
 import com.tugalsan.api.input.server.*;
 import com.tugalsan.api.thread.server.sync.*;
 import java.awt.*;
