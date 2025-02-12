@@ -1,7 +1,7 @@
 package com.tugalsan.dsk.recorder.gif;
 
 import com.tugalsan.api.charset.client.TGS_CharSetCast;
-import com.tugalsan.api.thread.server.async.TS_ThreadAsyncBuilder;
+import com.tugalsan.api.thread.server.async.builder.TS_ThreadAsyncBuilder;
 import com.tugalsan.api.desktop.server.*;
 import com.tugalsan.api.file.gif.server.*;
 import com.tugalsan.api.file.server.TS_FileUtils;
@@ -43,7 +43,7 @@ public class Main {
                         var rect = resizer.fixIt_getRectangleWithoutMenuBar();
                         TS_DesktopWindowAndFrameUtils.setUnDecoratedTransparent(frame);
                         //FETCH FILE
-                        var file = TGS_FuncEffectivelyFinal.of(Path.class).coronateAs(__ -> {
+                        var file = TGS_FuncMTUCEEffectivelyFinal.of(Path.class).coronateAs(__ -> {
                             var _file = TS_DesktopPathUtils.save("Save title", Optional.empty()).orElse(null);
                             if (_file == null) {
                                 TS_DesktopDialogInfoUtils.show("ERROR", "No file selected");
