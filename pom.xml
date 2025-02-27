@@ -7,7 +7,6 @@
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>23</maven.compiler.release>
         <exec.mainClass>com.tugalsan.dsk.recorder.gif.Main</exec.mainClass>
     </properties>
     <dependencies>
@@ -94,7 +93,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <release>23</release>
+                    <release>24</release><!--prop.jdk-->
                     <enablePreview>true</enablePreview>
                     <!--<compilerArgs>
                         <arg>- -add-modules</arg>
