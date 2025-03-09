@@ -7,6 +7,7 @@ import com.tugalsan.api.file.gif.server.*;
 import com.tugalsan.api.file.server.TS_FileUtils;
 import com.tugalsan.api.function.client.maythrow.uncheckedexceptions.TGS_FuncMTUCEEffectivelyFinal;
 import com.tugalsan.api.input.server.*;
+import com.tugalsan.api.log.server.TS_Log;
 import com.tugalsan.api.thread.server.sync.*;
 import java.awt.*;
 import java.awt.image.*;
@@ -18,6 +19,8 @@ import javax.swing.*;
 //cd C:\me\codes\com.tugalsan\dsk\com.tugalsan.dsk.recorder.gif
 //java --enable-preview --add-modules jdk.incubator.vector -jar target/com.tugalsan.dsk.recorder.gif-1.0-SNAPSHOT-jar-with-dependencies.jar
 public class Main {
+    
+    final private static TS_Log d = TS_Log.of(Main.class);
 
     //TODO ffmpeg -f gif -i infile.gif outfile.mp4
     public static void main(String[] args) {
@@ -34,6 +37,7 @@ public class Main {
                 if (startTriggered.hasNotTriggered()) {
                     System.exit(0);
                 }
+                d.cr("main", "killTrigger.trigger();");
                 killTriggered.trigger();
             }),
                     TS_DesktopJMenuButton.of("Start", ms -> {
