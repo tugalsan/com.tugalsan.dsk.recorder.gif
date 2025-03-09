@@ -31,18 +31,17 @@ public class Main {
             TS_DesktopWindowAndFrameUtils.initUnDecorated(frame);
             TS_DesktopWindowAndFrameUtils.setBackgroundTransparentBlack(frame);
             TS_DesktopWindowAndFrameUtils.setBorderRed(frame);
-            var startTriggered = TS_ThreadSyncTrigger.of();
-            var killTriggered = TS_ThreadSyncTrigger.of();
+            var startTriggered = TS_ThreadSyncTrigger.of("startTriggered");
+            var killTriggered = TS_ThreadSyncTrigger.of("killTriggered");
             TS_DesktopWindowAndFrameUtils.setTitleSizeCenterWithMenuBar(frame, "Tuğalsan's Gif Recorder", TS_DesktopJMenuButtonBar.of(TS_DesktopJMenuButton.of("Exit", mx -> {
                 if (startTriggered.hasNotTriggered()) {
                     System.exit(0);
                 }
-                d.cr("main", "killTrigger.trigger();");
-                killTriggered.trigger();
+                killTriggered.trigger("on exit");
             }),
                     TS_DesktopJMenuButton.of("Start", ms -> {
                         ms.setVisible(false);
-                        startTriggered.trigger();
+                        startTriggered.trigger("on start");
                         //FETCH RECT
                         var rect = resizer.fixIt_getRectangleWithoutMenuBar();
                         TS_DesktopWindowAndFrameUtils.setUnDecoratedTransparent(frame);
