@@ -19,7 +19,7 @@ import javax.swing.*;
 //cd C:\me\codes\com.tugalsan\dsk\com.tugalsan.dsk.recorder.gif
 //java --enable-preview --add-modules jdk.incubator.vector -jar target/com.tugalsan.dsk.recorder.gif-1.0-SNAPSHOT-jar-with-dependencies.jar
 public class Main {
-    
+
     final private static TS_Log d = TS_Log.of(Main.class);
 
     //TODO ffmpeg -f gif -i infile.gif outfile.mp4
@@ -62,13 +62,15 @@ public class Main {
                         //RUN
                         TS_ThreadSyncLst<RenderedImage> buffer = TS_ThreadSyncLst.ofSlowRead();
                         var gifWriter = TS_FileGifWriter.open(file, 150, true);
-                        TS_ThreadAsyncBuilder.of(killTriggered)
-                                .init(() -> TS_InputCommonUtils.robot())
-                                .main((killTrigger, robot) -> buffer.add(TS_InputScreenUtils.shotPicture((Robot) robot, rect)))
+                        TS_ThreadAsyncBuilder.<Robot>of(killTriggered.newChild(d.className).newChild("shotPicture"))
+                                .name("shotPicture")
+                                .init(TS_InputCommonUtils::robot)
+                                .main((killTrigger, robot) -> buffer.add(TS_InputScreenUtils.shotPicture(robot, rect)))
                                 .cycle_mainPeriod(gifWriter.timeBetweenFramesMS())
                                 .asyncRun();
-                        TS_ThreadAsyncBuilder.of(killTriggered)
-                                .main(killTrigger -> gifWriter.write(buffer.removeAndPopFirst()))
+                        TS_ThreadAsyncBuilder.<Void>of(killTriggered.newChild(d.className).newChild("removeAndPopFirst"))
+                                .name("removeAndPopFirst")
+                                .main((killTrigger, o) -> gifWriter.write(buffer.removeAndPopFirst()))
                                 .fin(() -> {
                                     gifWriter.close();
                                     TS_DesktopPathUtils.run(file);
