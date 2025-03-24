@@ -5,7 +5,7 @@ import com.tugalsan.api.thread.server.async.builder.TS_ThreadAsyncBuilder;
 import com.tugalsan.api.desktop.server.*;
 import com.tugalsan.api.file.gif.server.*;
 import com.tugalsan.api.file.server.TS_FileUtils;
-import com.tugalsan.api.function.client.maythrow.uncheckedexceptions.TGS_FuncMTUCEEffectivelyFinal;
+import com.tugalsan.api.function.client.maythrowexceptions.unchecked.TGS_FuncMTUEffectivelyFinal;
 import com.tugalsan.api.input.server.*;
 import com.tugalsan.api.log.server.TS_Log;
 import com.tugalsan.api.thread.server.sync.*;
@@ -46,7 +46,7 @@ public class Main {
                         var rect = resizer.fixIt_getRectangleWithoutMenuBar();
                         TS_DesktopWindowAndFrameUtils.setUnDecoratedTransparent(frame);
                         //FETCH FILE
-                        var file = TGS_FuncMTUCEEffectivelyFinal.of(Path.class).coronateAs(__ -> {
+                        var file = TGS_FuncMTUEffectivelyFinal.of(Path.class).coronateAs(__ -> {
                             var _file = TS_DesktopPathUtils.save("Save title", Optional.empty()).orElse(null);
                             if (_file == null) {
                                 TS_DesktopDialogInfoUtils.show("ERROR", "No file selected");
