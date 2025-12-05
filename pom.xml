@@ -42,7 +42,7 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>${artifactId}</finalName>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -71,12 +71,11 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.0</version>
                 <configuration>
-                    <release>24</release><!--prop.jdk-->
+                    <release>25</release><!--prop.jdk-->
                     <enablePreview>true</enablePreview>
-                    <!--<compilerArgs>
-                        <arg>- -add-modules</arg>
-                        <arg>jdk.incubator.vector</arg>
-                    </compilerArgs>-->
+                    <compilerArgs>
+                        <arg>--enable-preview</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
         </plugins>

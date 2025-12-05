@@ -62,13 +62,13 @@ public class Main {
                         //RUN
                         TS_ThreadSyncLst<RenderedImage> buffer = TS_ThreadSyncLst.ofSlowRead();
                         var gifWriter = TS_FileGifWriter.open(file, 150, true);
-                        TS_ThreadAsyncBuilder.<Robot>of(killTriggered.newChild(d.className).newChild("shotPicture"))
+                        TS_ThreadAsyncBuilder.<Robot>of(killTriggered.newChild(d.className()).newChild("shotPicture"))
                                 .name("shotPicture")
                                 .init(TS_InputCommonUtils::robot)
                                 .main((killTrigger, robot) -> buffer.add(TS_InputScreenUtils.shotPicture(robot, rect)))
                                 .cycle_mainPeriod(gifWriter.timeBetweenFramesMS())
                                 .asyncRun();
-                        TS_ThreadAsyncBuilder.<Void>of(killTriggered.newChild(d.className).newChild("removeAndPopFirst"))
+                        TS_ThreadAsyncBuilder.<Void>of(killTriggered.newChild(d.className()).newChild("removeAndPopFirst"))
                                 .name("removeAndPopFirst")
                                 .main((killTrigger, o) -> gifWriter.write(buffer.removeAndPopFirst()))
                                 .fin(() -> {
